@@ -159,29 +159,23 @@
     #map {
       width: 100%;
       height: 100%;
-      filter: invert(1) hue-rotate(180deg) brightness(0.85) saturate(0.9);
     }
 
-    .leaflet-marker-pane,
-    .leaflet-overlay-pane,
-    .leaflet-popup-pane {
-      filter: invert(1) hue-rotate(180deg);
-    }
     .leaflet-control-zoom {
-      border: 1px solid var(--border-hi) !important;
+      border: 1px solid #d1d5db !important;
       border-radius: 8px !important;
       overflow: hidden;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.5) !important;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15) !important;
     }
     .leaflet-control-zoom a {
-      background: var(--panel) !important;
-      color: var(--text-mid) !important;
-      border-color: var(--border) !important;
+      background: #ffffff !important;
+      color: #374151 !important;
+      border-color: #e5e7eb !important;
       font-size: 16px !important;
     }
     .leaflet-control-zoom a:hover {
-      background: var(--panel-mid) !important;
-      color: var(--text-hi) !important;
+      background: #f3f4f6 !important;
+      color: #111827 !important;
     }
 
     /* ── Sidebar ── */
@@ -617,7 +611,7 @@
         <div class="time-val">
           <span class="time-date" id="timeDate">—</span>
           <span id="timeTime">—</span>
-          <span class="time-ago" id="timeAgo"></span>
+
         </div>
       </div>
 
@@ -642,11 +636,10 @@
     attributionControl: true
   });
 
-  // CartoDB Positron — clean light tiles that contrast against the dark UI
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>',
-    subdomains: 'abcd',
-    maxZoom: 20
+  // OpenStreetMap Standard — full detail with building names, POIs, and street labels
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    maxZoom: 19
   }).addTo(map);
 
   // Custom car marker icon (SVG pulsing blue dot)
@@ -687,16 +680,7 @@
 
   let marker       = null;
   let firstLoad    = true;
-  let countdown    = REFRESH_MS / 1000;
   let lastTimestamp = null;
-
-  // ── Countdown badge ────────────────────────────────────────
-  setInterval(() => {
-    countdown--;
-    if (countdown <= 0) countdown = REFRESH_MS / 1000;
-    document.getElementById('countdown').textContent =
-      `Refresh in ${countdown}s`;
-  }, 1000);
 
   // ── Flash helper ───────────────────────────────────────────
   function flashCoord(id) {
@@ -736,13 +720,6 @@
   function isStale(isoStr) {
     return (Date.now() - new Date(isoStr)) / 1000 > STALE_SEC;
   }
-
-  // ── "time ago" live update ─────────────────────────────────
-  setInterval(() => {
-    if (lastTimestamp) {
-      document.getElementById('timeAgo').textContent = timeAgoStr(lastTimestamp);
-    }
-  }, 1000);
 
   // ── Set status badge ───────────────────────────────────────
   function setStatus(mode, label) {
@@ -808,7 +785,7 @@
       const { dateStr, timeStr } = formatTimestamp(ts);
       document.getElementById('timeDate').textContent = dateStr;
       document.getElementById('timeTime').textContent = timeStr;
-      document.getElementById('timeAgo').textContent  = timeAgoStr(ts);
+
 
       // ── Status ──
       if (isStale(ts)) {
@@ -842,9 +819,22 @@
   }
 
   // ── Start ──────────────────────────────────────────────────
+  let fetchCycleStart = Date.now();
+
   fetchData();
+
+  // Single master ticker: drives "refresh in Xs" countdown
   setInterval(() => {
-    countdown = REFRESH_MS / 1000;
+    // Update countdown based on real elapsed time since last fetch
+    const elapsed = Date.now() - fetchCycleStart;
+    const remaining = Math.max(0, Math.ceil((REFRESH_MS - elapsed) / 1000));
+    document.getElementById('countdown').textContent =
+      remaining > 0 ? `Refresh in ${remaining}s` : 'Refreshing…';
+  }, 1000);
+
+  // Fetch every 15 s, reset cycle clock each time
+  setInterval(() => {
+    fetchCycleStart = Date.now();
     fetchData();
   }, REFRESH_MS);
 </script>
