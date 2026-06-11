@@ -6,19 +6,16 @@
   <title>Entra Innovations — Vehicle GPS Tracker</title>
   <link rel="icon" type="image/png" href="entra_logo.png" />
 
-  <!-- Leaflet -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
           integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
-  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
 
   <style>
-    /* ── Reset & Base ── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
@@ -26,9 +23,7 @@
       --panel:      #0F1628;
       --panel-mid:  #141D35;
       --border:     rgba(59,130,246,0.15);
-      --border-hi:  rgba(59,130,246,0.35);
       --accent:     #3B82F6;
-      --accent-dim: rgba(59,130,246,0.18);
       --text-hi:    #EEF2FF;
       --text-mid:   #94A3B8;
       --text-lo:    #4B5A72;
@@ -36,7 +31,6 @@
       --green-dim:  rgba(34,197,94,0.15);
       --amber:      #F59E0B;
       --red:        #EF4444;
-      --mono:       'Space Mono', monospace;
       --grotesk:    'Space Grotesk', sans-serif;
       --inter:      'Inter', sans-serif;
     }
@@ -49,479 +43,262 @@
       overflow: hidden;
     }
 
-    /* ── Layout shell ── */
+    /* ── Shell: header + content ── */
     .shell {
-      display: grid;
-      grid-template-rows: 52px 1fr;
-      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      height: 100dvh; /* dynamic viewport height — respects mobile browser chrome */
     }
 
     /* ── Header ── */
     header {
+      flex-shrink: 0;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 24px;
+      padding: 0 20px;
+      height: 48px;
       background: var(--panel);
       border-bottom: 1px solid var(--border);
       z-index: 100;
     }
 
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
+    .brand { display: flex; align-items: center; gap: 10px; }
 
     .brand-icon {
-      width: 28px;
-      height: 28px;
+      width: 26px; height: 26px;
       border: 1.5px solid var(--accent);
       border-radius: 6px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
     }
-
-    .brand-icon svg { width: 14px; height: 14px; }
+    .brand-icon svg { width: 13px; height: 13px; }
 
     .brand-name {
       font-family: var(--grotesk);
-      font-size: 13px;
-      font-weight: 600;
-      letter-spacing: 0.04em;
-      color: var(--text-hi);
+      font-size: 13px; font-weight: 600;
+      letter-spacing: 0.04em; color: var(--text-hi);
     }
-
     .brand-sub {
       font-family: var(--inter);
-      font-size: 11px;
-      color: var(--text-mid);
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-    }
-
-    .header-right {
-      display: flex;
-      align-items: center;
-      gap: 20px;
+      font-size: 10px; color: var(--text-mid);
+      letter-spacing: 0.06em; text-transform: uppercase;
     }
 
     .live-pill {
-      display: flex;
-      align-items: center;
-      gap: 7px;
+      display: flex; align-items: center; gap: 6px;
       background: var(--green-dim);
       border: 1px solid rgba(34,197,94,0.3);
-      border-radius: 20px;
-      padding: 4px 11px;
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.07em;
-      text-transform: uppercase;
-      color: var(--green);
-      font-family: var(--grotesk);
+      border-radius: 20px; padding: 3px 10px;
+      font-size: 11px; font-weight: 600;
+      letter-spacing: 0.07em; text-transform: uppercase;
+      color: var(--green); font-family: var(--grotesk);
     }
-
     .live-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
+      width: 7px; height: 7px; border-radius: 50%;
       background: var(--green);
       animation: pulse-dot 2s ease-in-out infinite;
     }
-
     @keyframes pulse-dot {
       0%, 100% { opacity: 1; transform: scale(1); }
       50%       { opacity: 0.4; transform: scale(0.7); }
     }
 
-    .refresh-badge {
-      font-family: var(--mono);
-      font-size: 10px;
-      color: var(--text-lo);
-      letter-spacing: 0.04em;
-    }
-
-    /* ── Content row ── */
+    /* ── Content: map + sidebar ── */
     .content {
+      flex: 1;
       display: grid;
-      grid-template-columns: 1fr 340px;
-      overflow: hidden;
+      grid-template-columns: 1fr 320px;
+      min-height: 0; /* critical — lets flex child shrink */
     }
 
     /* ── Map ── */
-    .map-wrap {
-      position: relative;
-      overflow: hidden;
-    }
-
-    #map {
-      width: 100%;
-      height: 100%;
-    }
+    .map-wrap { position: relative; overflow: hidden; }
+    #map { width: 100%; height: 100%; }
 
     .leaflet-control-zoom {
       border: 1px solid #d1d5db !important;
-      border-radius: 8px !important;
-      overflow: hidden;
+      border-radius: 8px !important; overflow: hidden;
       box-shadow: 0 2px 8px rgba(0,0,0,0.15) !important;
     }
     .leaflet-control-zoom a {
-      background: #ffffff !important;
-      color: #374151 !important;
-      border-color: #e5e7eb !important;
-      font-size: 16px !important;
+      background: #fff !important; color: #374151 !important;
+      border-color: #e5e7eb !important; font-size: 16px !important;
     }
-    .leaflet-control-zoom a:hover {
-      background: #f3f4f6 !important;
-      color: #111827 !important;
-    }
+    .leaflet-control-zoom a:hover { background: #f3f4f6 !important; color: #111827 !important; }
 
     /* ── Sidebar ── */
     .sidebar {
       background: var(--panel);
       border-left: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
+      display: flex; flex-direction: column;
       overflow: hidden;
     }
 
-    /* section header inside sidebar */
-    .s-head {
-      padding: 16px 20px 12px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .s-label {
+    .section-key {
       font-family: var(--grotesk);
-      font-size: 10px;
-      font-weight: 600;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--text-lo);
-      margin-bottom: 4px;
+      font-size: 10px; font-weight: 600;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--text-lo); margin-bottom: 8px;
     }
 
-    .s-title {
-      font-family: var(--grotesk);
-      font-size: 15px;
-      font-weight: 600;
-      color: var(--text-hi);
-    }
-
-    /* ── Coordinate block ── */
-    .coord-block {
-      padding: 20px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
-
-    .coord-row {
-      position: relative;
-    }
-
-    .coord-key {
-      font-family: var(--grotesk);
-      font-size: 10px;
-      font-weight: 600;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--text-lo);
-      margin-bottom: 5px;
-    }
-
-    .coord-val {
-      font-family: var(--mono);
-      font-size: 22px;
-      font-weight: 700;
-      color: var(--accent);
-      letter-spacing: -0.01em;
-      line-height: 1;
-      transition: color 0.3s;
-    }
-
-    .coord-val.refreshed {
-      color: var(--green);
-    }
-
-    .coord-unit {
-      font-size: 12px;
-      font-weight: 400;
-      color: var(--text-lo);
-      margin-left: 4px;
-      font-family: var(--inter);
-    }
-
-    /* scanning line on coord block */
-    .coord-row::after {
-      content: '';
-      position: absolute;
-      bottom: -7px;
-      left: 0;
-      width: 0;
-      height: 1px;
-      background: var(--accent);
-      opacity: 0;
-      transition: none;
-    }
-
-    .coord-row.flash::after {
-      animation: scan-line 0.6s ease-out forwards;
-    }
-
-    @keyframes scan-line {
-      0%   { width: 0;    opacity: 0.8; }
-      60%  { width: 100%; opacity: 0.6; }
-      100% { width: 100%; opacity: 0;   }
-    }
-
-    /* ── Speed block ── */
+    /* Speed */
     .speed-block {
-      padding: 20px;
+      padding: 18px 20px;
       border-bottom: 1px solid var(--border);
     }
-
-    .speed-key {
-      font-family: var(--grotesk);
-      font-size: 10px;
-      font-weight: 600;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--text-lo);
-      margin-bottom: 10px;
-    }
-
     .speed-display {
-      display: flex;
-      align-items: flex-end;
-      gap: 8px;
-      margin-bottom: 14px;
+      display: flex; align-items: flex-end; gap: 8px;
+      margin-bottom: 12px;
     }
-
     .speed-num {
       font-family: var(--grotesk);
-      font-size: 52px;
-      font-weight: 700;
-      line-height: 1;
-      color: var(--text-hi);
-      letter-spacing: -0.03em;
-      transition: color 0.3s;
+      font-size: 52px; font-weight: 700; line-height: 1;
+      color: var(--text-hi); letter-spacing: -0.03em;
     }
-
-    .speed-unit-stack {
-      padding-bottom: 6px;
-    }
-
+    .speed-unit-stack { padding-bottom: 6px; }
     .speed-unit {
-      font-family: var(--inter);
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--text-mid);
-      line-height: 1.2;
+      font-family: var(--inter); font-size: 13px;
+      font-weight: 500; color: var(--text-mid); line-height: 1.2;
     }
-
-    /* speed bar */
     .speed-bar-track {
-      height: 3px;
-      background: var(--panel-mid);
-      border-radius: 2px;
-      overflow: hidden;
+      height: 3px; background: var(--panel-mid);
+      border-radius: 2px; overflow: hidden;
     }
-
     .speed-bar-fill {
-      height: 100%;
-      border-radius: 2px;
+      height: 100%; border-radius: 2px;
       background: linear-gradient(90deg, var(--accent), #60A5FA);
-      transition: width 0.8s ease, background 0.4s;
-      width: 0%;
+      transition: width 0.8s ease, background 0.4s; width: 0%;
     }
-
-    .speed-bar-fill.fast { background: linear-gradient(90deg, var(--amber), #FCD34D); }
+    .speed-bar-fill.fast      { background: linear-gradient(90deg, var(--amber), #FCD34D); }
     .speed-bar-fill.very-fast { background: linear-gradient(90deg, var(--red), #F87171); }
 
-    /* ── Status block ── */
+    /* Status */
     .status-block {
-      padding: 20px;
+      padding: 18px 20px;
       border-bottom: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
+      display: flex; flex-direction: column; gap: 8px;
     }
-
-    .status-key {
-      font-family: var(--grotesk);
-      font-size: 10px;
-      font-weight: 600;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--text-lo);
-    }
-
     .status-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 7px 14px;
-      border-radius: 8px;
-      font-family: var(--grotesk);
-      font-size: 13px;
-      font-weight: 600;
-      letter-spacing: 0.04em;
-      width: fit-content;
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 7px 14px; border-radius: 8px;
+      font-family: var(--grotesk); font-size: 13px;
+      font-weight: 600; letter-spacing: 0.04em; width: fit-content;
     }
+    .status-badge.active  { background: var(--green-dim); border: 1px solid rgba(34,197,94,0.3); color: var(--green); }
+    .status-badge.stale   { background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.3); color: var(--amber); }
+    .status-badge.offline { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.25); color: var(--red); }
+    .status-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+    .status-badge.active .status-dot { animation: pulse-dot 2s ease-in-out infinite; }
 
-    .status-badge.active {
-      background: var(--green-dim);
-      border: 1px solid rgba(34,197,94,0.3);
-      color: var(--green);
-    }
-
-    .status-badge.stale {
-      background: rgba(245,158,11,0.12);
-      border: 1px solid rgba(245,158,11,0.3);
-      color: var(--amber);
-    }
-
-    .status-badge.offline {
-      background: rgba(239,68,68,0.1);
-      border: 1px solid rgba(239,68,68,0.25);
-      color: var(--red);
-    }
-
-    .status-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: currentColor;
-    }
-
-    .status-badge.active .status-dot {
-      animation: pulse-dot 2s ease-in-out infinite;
-    }
-
-    /* ── Timestamp block ── */
-    .time-block {
-      padding: 20px;
-      flex: 1;
-    }
-
-    .time-key {
-      font-family: var(--grotesk);
-      font-size: 10px;
-      font-weight: 600;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--text-lo);
-      margin-bottom: 10px;
-    }
-
+    /* Timestamp */
+    .time-block { padding: 18px 20px; flex: 1; }
     .time-val {
       font-family: var(--grotesk);
-      font-size: 15px;
-      font-weight: 600;
-      color: var(--text-hi);
-      letter-spacing: 0.01em;
-      line-height: 1.7;
+      font-size: 15px; font-weight: 600;
+      color: var(--text-hi); line-height: 1.7;
     }
+    .time-date { display: block; }
+    .time-time { display: block; }
 
-    .time-date {
-      display: block;
-    }
-
-    .time-time {
-      display: block;
-    }
-
-    /* ── Map marker custom ── */
-    .car-pin-wrap {
-      position: relative;
-    }
-
-    /* ── Loading state ── */
-    .loading-overlay {
-      position: absolute;
-      inset: 0;
-      background: var(--bg);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      z-index: 500;
-      gap: 16px;
-      transition: opacity 0.5s ease;
-    }
-
-    .loading-overlay.hide {
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    .loader-ring {
-      width: 40px;
-      height: 40px;
-      border: 2px solid var(--border);
-      border-top-color: var(--accent);
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
-
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    .loader-text {
-      font-family: var(--grotesk);
-      font-size: 12px;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--text-lo);
-    }
-
-    /* ── Error state ── */
+    /* Error */
     .error-msg {
-      display: none;
-      font-family: var(--inter);
-      font-size: 12px;
-      color: var(--red);
-      padding: 10px 20px;
+      display: none; font-family: var(--inter); font-size: 12px;
+      color: var(--red); padding: 8px 20px;
       background: rgba(239,68,68,0.08);
-      border-top: 1px solid rgba(239,68,68,0.2);
-      text-align: center;
+      border-top: 1px solid rgba(239,68,68,0.2); text-align: center;
+      flex-shrink: 0;
+    }
+
+    /* Loading overlay */
+    .loading-overlay {
+      position: absolute; inset: 0; background: var(--bg);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      z-index: 500; gap: 16px; transition: opacity 0.5s ease;
+    }
+    .loading-overlay.hide { opacity: 0; pointer-events: none; }
+    .loader-ring {
+      width: 40px; height: 40px;
+      border: 2px solid var(--border); border-top-color: var(--accent);
+      border-radius: 50%; animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loader-text {
+      font-family: var(--grotesk); font-size: 12px;
+      letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-lo);
     }
 
     /* ── Mobile ── */
     @media (max-width: 768px) {
-      html, body { overflow: hidden; }
+      header { height: 44px; padding: 0 14px; }
+      .brand-name { font-size: 12px; }
+      .brand-sub  { font-size: 9px; }
 
       .content {
         grid-template-columns: 1fr;
-        grid-template-rows: 55vh 1fr;
+        grid-template-rows: 1fr auto;
       }
 
+      /* Bottom strip: 2×2 grid */
       .sidebar {
         border-left: none;
         border-top: 1px solid var(--border);
-        overflow-y: auto;
+        flex-direction: row;
+        flex-wrap: wrap;
+        flex-shrink: 0;
       }
 
-      .coord-val { font-size: 18px; }
-      .speed-num { font-size: 40px; }
+      /* Speed — top-left */
+      .speed-block {
+        width: 50%;
+        border-bottom: 1px solid var(--border);
+        border-right: 1px solid var(--border);
+        padding: 8px 12px;
+        flex: none;
+      }
+      .speed-display { margin-bottom: 4px; }
+      .speed-num { font-size: 28px; }
+      .speed-bar-track { height: 2px; }
+      .section-key { margin-bottom: 3px; font-size: 9px; }
+      .speed-unit { font-size: 11px; }
 
-      .header-right .refresh-badge { display: none; }
+      /* Status — top-right */
+      .status-block {
+        width: 50%;
+        border-bottom: 1px solid var(--border);
+        border-right: none;
+        padding: 8px 12px;
+        gap: 4px;
+        justify-content: center;
+        flex: none;
+      }
+      .status-badge { padding: 4px 10px; font-size: 11px; }
+
+      /* Last Updated — full width bottom row */
+      .time-block {
+        width: 100%;
+        padding: 8px 12px;
+        flex: none;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .time-block .section-key { margin-bottom: 0; white-space: nowrap; }
+      .time-val { font-size: 12px; line-height: 1.4; }
+      .time-date, .time-time { display: inline; }
+      .time-date::after { content: ' · '; color: var(--text-lo); }
+
+      .error-msg { font-size: 10px; padding: 4px 12px; width: 100%; }
     }
   </style>
 </head>
 <body>
-
 <div class="shell">
 
-  <!-- ── Header ── -->
   <header>
     <div class="brand">
       <div class="brand-icon">
-        <!-- location pin SVG -->
         <svg viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2.2"
              stroke-linecap="round" stroke-linejoin="round">
           <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
@@ -533,19 +310,14 @@
         <div class="brand-sub">Vehicle GPS Tracker</div>
       </div>
     </div>
-
-    <div class="header-right">
-      <div class="live-pill">
-        <span class="live-dot"></span>
-        Live
-      </div>
+    <div class="live-pill">
+      <span class="live-dot"></span>
+      Live
     </div>
   </header>
 
-  <!-- ── Content ── -->
   <div class="content">
 
-    <!-- Map -->
     <div class="map-wrap">
       <div id="map"></div>
       <div class="loading-overlay" id="loadingOverlay">
@@ -554,17 +326,10 @@
       </div>
     </div>
 
-    <!-- Sidebar -->
     <aside class="sidebar">
 
-      <div class="s-head">
-        <div class="s-title">Vehicle Position</div>
-      </div>
-
-
-      <!-- Speed -->
       <div class="speed-block">
-        <div class="speed-key">Speed</div>
+        <div class="section-key">Speed</div>
         <div class="speed-display">
           <span class="speed-num" id="speedVal">—</span>
           <div class="speed-unit-stack">
@@ -577,132 +342,73 @@
         </div>
       </div>
 
-      <!-- Status -->
       <div class="status-block">
-        <div class="status-key">Signal Status</div>
+        <div class="section-key">Signal Status</div>
         <div class="status-badge active" id="statusBadge">
           <span class="status-dot"></span>
           <span id="statusText">Connecting…</span>
         </div>
       </div>
 
-      <!-- Timestamp -->
       <div class="time-block">
-        <div class="time-key">Last Updated</div>
+        <div class="section-key">Last Updated</div>
         <div class="time-val">
           <span class="time-date" id="timeDate">—</span>
-          <span id="timeTime">—</span>
-
+          <span class="time-time" id="timeTime">—</span>
         </div>
       </div>
 
       <div class="error-msg" id="errorMsg">Unable to reach ThingSpeak. Retrying…</div>
 
     </aside>
-  </div><!-- .content -->
-</div><!-- .shell -->
+  </div>
+</div>
 
 <script>
-  // ── ThingSpeak config ──────────────────────────────────────
   const CHANNEL_ID = '3405086';
   const READ_KEY   = 'H0BCGRQK82EA58T1';
-  const REFRESH_MS = 15000;          // 15 s — ThingSpeak hard limit
-  const STALE_SEC  = 130;            // mark stale if no update in ~2 min
+  const REFRESH_MS = 15000;
+  const STALE_SEC  = 130;
 
-  // ── Map init ───────────────────────────────────────────────
   const map = L.map('map', {
-    center: [15.3647, 75.1240],      // default near Dharwad
+    center: [15.3647, 75.1240],
     zoom: 15,
     zoomControl: true,
     attributionControl: true
   });
 
-  // OpenStreetMap Standard — full detail with building names, POIs, and street labels
   L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     maxZoom: 19
   }).addTo(map);
 
-  // Custom car marker icon (SVG pulsing blue dot)
   const CAR_ICON = L.divIcon({
     className: '',
     iconSize:  [36, 36],
     iconAnchor:[18, 18],
     html: `
-      <div style="
-        position:relative;
-        width:36px; height:36px;
-        display:flex; align-items:center; justify-content:center;
-      ">
-        <div style="
-          position:absolute;
-          width:36px; height:36px;
-          border-radius:50%;
-          background:rgba(59,130,246,0.15);
-          animation:ripple 2s ease-out infinite;
-        "></div>
-        <div style="
-          width:14px; height:14px;
-          border-radius:50%;
-          background:#3B82F6;
-          border:2.5px solid #fff;
-          box-shadow:0 0 12px rgba(59,130,246,0.8);
-          position:relative; z-index:1;
-        "></div>
+      <div style="position:relative;width:36px;height:36px;display:flex;align-items:center;justify-content:center;">
+        <div style="position:absolute;width:36px;height:36px;border-radius:50%;background:rgba(59,130,246,0.15);animation:ripple 2s ease-out infinite;"></div>
+        <div style="width:14px;height:14px;border-radius:50%;background:#3B82F6;border:2.5px solid #fff;box-shadow:0 0 12px rgba(59,130,246,0.8);position:relative;z-index:1;"></div>
       </div>
-      <style>
-        @keyframes ripple{
-          0%  {transform:scale(0.5);opacity:0.8;}
-          100%{transform:scale(2.2);opacity:0;}
-        }
-      </style>
+      <style>@keyframes ripple{0%{transform:scale(0.5);opacity:0.8;}100%{transform:scale(2.2);opacity:0;}}</style>
     `
   });
 
-  let marker       = null;
-  let firstLoad    = true;
-  let lastTimestamp = null;
+  let marker    = null;
+  let firstLoad = true;
 
-  // ── Flash helper ───────────────────────────────────────────
-  function flashCoord(id) {
-    const el = document.getElementById(id);
-    el.classList.remove('refreshed');
-    void el.offsetWidth;
-    el.classList.add('refreshed');
-    setTimeout(() => el.classList.remove('refreshed'), 800);
-  }
-
-  function flashScan(rowId) {
-    const el = document.getElementById(rowId);
-    el.classList.remove('flash');
-    void el.offsetWidth;
-    el.classList.add('flash');
-  }
-
-  // ── Time helpers ───────────────────────────────────────────
   function formatTimestamp(isoStr) {
     const d = new Date(isoStr);
-    const dateStr = d.toLocaleDateString('en-IN', {
-      day: '2-digit', month: 'short', year: 'numeric'
-    });
-    const timeStr = d.toLocaleTimeString('en-IN', {
-      hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true
-    });
+    const dateStr = d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+    const timeStr = d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
     return { dateStr, timeStr };
-  }
-
-  function timeAgoStr(isoStr) {
-    const sec = Math.floor((Date.now() - new Date(isoStr)) / 1000);
-    if (sec < 60)  return `${sec}s ago`;
-    if (sec < 3600) return `${Math.floor(sec/60)}m ${sec%60}s ago`;
-    return `${Math.floor(sec/3600)}h ago`;
   }
 
   function isStale(isoStr) {
     return (Date.now() - new Date(isoStr)) / 1000 > STALE_SEC;
   }
 
-  // ── Set status badge ───────────────────────────────────────
   function setStatus(mode, label) {
     const badge = document.getElementById('statusBadge');
     const text  = document.getElementById('statusText');
@@ -712,17 +418,14 @@
     badge.appendChild(text);
   }
 
-  // ── Update speed bar ───────────────────────────────────────
   function updateSpeedBar(spd) {
     const bar = document.getElementById('speedBar');
-    const pct = Math.min((spd / 120) * 100, 100);
-    bar.style.width = pct + '%';
+    bar.style.width = Math.min((spd / 120) * 100, 100) + '%';
     bar.className = 'speed-bar-fill';
     if (spd >= 90)      bar.classList.add('very-fast');
     else if (spd >= 60) bar.classList.add('fast');
   }
 
-  // ── Fetch from ThingSpeak ─────────────────────────────────
   async function fetchData() {
     const url = `https://api.thingspeak.com/channels/${CHANNEL_ID}/feeds.json?api_key=${READ_KEY}&results=1`;
     try {
@@ -739,31 +442,18 @@
       const spd = parseFloat(feed.field3) || 0;
       const ts  = feed.created_at;
 
-      if (!isFinite(lat) || !isFinite(lng)) {
-        setStatus('offline', 'No Signal');
-        return;
-      }
+      if (!isFinite(lat) || !isFinite(lng)) { setStatus('offline', 'No Signal'); return; }
 
-      // ── Speed ──
       const spdInt = Math.round(spd);
       document.getElementById('speedVal').textContent = spdInt;
       updateSpeedBar(spdInt);
 
-      // ── Timestamp ──
-      lastTimestamp = ts;
       const { dateStr, timeStr } = formatTimestamp(ts);
       document.getElementById('timeDate').textContent = dateStr;
       document.getElementById('timeTime').textContent = timeStr;
 
+      setStatus(isStale(ts) ? 'stale' : 'active', isStale(ts) ? 'Signal Stale' : 'Live Signal');
 
-      // ── Status ──
-      if (isStale(ts)) {
-        setStatus('stale', 'Signal Stale');
-      } else {
-        setStatus('active', 'Live Signal');
-      }
-
-      // ── Map marker ──
       const latlng = L.latLng(lat, lng);
       if (!marker) {
         marker = L.marker(latlng, { icon: CAR_ICON }).addTo(map);
@@ -776,7 +466,6 @@
         firstLoad = false;
         document.getElementById('loadingOverlay').classList.add('hide');
       } else {
-        // gentle pan only if not stale
         if (!isStale(ts)) map.panTo(latlng);
       }
 
@@ -787,13 +476,8 @@
     }
   }
 
-  // ── Start ──────────────────────────────────────────────────
   fetchData();
-
-  // Fetch every 15 s
-  setInterval(() => {
-    fetchData();
-  }, REFRESH_MS);
+  setInterval(fetchData, REFRESH_MS);
 </script>
 </body>
 </html>
