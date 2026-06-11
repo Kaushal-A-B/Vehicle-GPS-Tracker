@@ -3,7 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Entra Innovations — Car GPS Tracker</title>
+  <title>Entra Innovations — Vehicle GPS Tracker</title>
+  <link rel="icon" type="image/png" href="entra_logo.png" />
 
   <!-- Leaflet -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -419,27 +420,20 @@
     }
 
     .time-val {
-      font-family: var(--mono);
-      font-size: 13px;
-      color: var(--text-mid);
-      letter-spacing: 0.02em;
+      font-family: var(--grotesk);
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-hi);
+      letter-spacing: 0.01em;
       line-height: 1.7;
     }
 
     .time-date {
       display: block;
-      font-size: 15px;
-      font-weight: 700;
-      color: var(--text-hi);
-      margin-bottom: 2px;
     }
 
-    .time-ago {
+    .time-time {
       display: block;
-      font-family: var(--inter);
-      font-size: 11px;
-      color: var(--text-lo);
-      margin-top: 6px;
     }
 
     /* ── Map marker custom ── */
@@ -536,12 +530,11 @@
       </div>
       <div>
         <div class="brand-name">Entra Innovations</div>
-        <div class="brand-sub">Car GPS Tracker</div>
+        <div class="brand-sub">Vehicle GPS Tracker</div>
       </div>
     </div>
 
     <div class="header-right">
-      <span class="refresh-badge" id="countdown">Refresh in 15s</span>
       <div class="live-pill">
         <span class="live-dot"></span>
         Live
@@ -565,21 +558,9 @@
     <aside class="sidebar">
 
       <div class="s-head">
-        <div class="s-label">Live Telemetry</div>
         <div class="s-title">Vehicle Position</div>
       </div>
 
-      <!-- Coordinates -->
-      <div class="coord-block">
-        <div class="coord-row" id="latRow">
-          <div class="coord-key">Latitude</div>
-          <div class="coord-val" id="latVal">—<span class="coord-unit">° N</span></div>
-        </div>
-        <div class="coord-row" id="lngRow">
-          <div class="coord-key">Longitude</div>
-          <div class="coord-val" id="lngVal">—<span class="coord-unit">° E</span></div>
-        </div>
-      </div>
 
       <!-- Speed -->
       <div class="speed-block">
@@ -763,18 +744,6 @@
         return;
       }
 
-      // ── Coordinates ──
-      const latStr = lat.toFixed(6);
-      const lngStr = lng.toFixed(6);
-
-      document.getElementById('latVal').innerHTML =
-        `${latStr}<span class="coord-unit">° N</span>`;
-      document.getElementById('lngVal').innerHTML =
-        `${lngStr}<span class="coord-unit">° E</span>`;
-
-      flashCoord('latVal'); flashCoord('lngVal');
-      flashScan('latRow');  flashScan('lngRow');
-
       // ── Speed ──
       const spdInt = Math.round(spd);
       document.getElementById('speedVal').textContent = spdInt;
@@ -819,22 +788,10 @@
   }
 
   // ── Start ──────────────────────────────────────────────────
-  let fetchCycleStart = Date.now();
-
   fetchData();
 
-  // Single master ticker: drives "refresh in Xs" countdown
+  // Fetch every 15 s
   setInterval(() => {
-    // Update countdown based on real elapsed time since last fetch
-    const elapsed = Date.now() - fetchCycleStart;
-    const remaining = Math.max(0, Math.ceil((REFRESH_MS - elapsed) / 1000));
-    document.getElementById('countdown').textContent =
-      remaining > 0 ? `Refresh in ${remaining}s` : 'Refreshing…';
-  }, 1000);
-
-  // Fetch every 15 s, reset cycle clock each time
-  setInterval(() => {
-    fetchCycleStart = Date.now();
     fetchData();
   }, REFRESH_MS);
 </script>
